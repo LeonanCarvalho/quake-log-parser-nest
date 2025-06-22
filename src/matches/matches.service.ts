@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMatchDto } from './dto/create-match.dto';
-import { UpdateMatchDto } from './dto/update-match.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ParserService } from '../parser/parser.service';
+import { GameProcessorService } from '../game/game-processor.service';
+import { PrismaService } from '../prisma/prisma.service'; // Assumindo um PrismaService
+import * as readline from 'readline';
+import { Readable } from 'stream';
 
 @Injectable()
 export class MatchesService {
-  create(createMatchDto: CreateMatchDto) {
-    return 'This action adds a new match';
+  // O PrismaService deve ser injetado.
+  // Vamos adicioná-lo ao módulo e construtor.
+  constructor(
+    private readonly parserService: ParserService,
+    private readonly gameProcessorService: GameProcessorService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async processLogFile(logBuffer: Buffer) {
+    this.gameProcessorService.clear();
+
+    const stream = Readable.from(logBuffer.toString());
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity,
+    });
+
+    for await (const line of rl) {
+      const parsedLine = this.parserService.parseLine(line);
+      this.gameProcessorService.processLine(parsedLine);
+    }
+
+    const reports = this.gameProcessorService.getReports();
+    // Aqui você irá persistir os `reports` no banco de dados usando o Prisma.
+    // Esta parte da implementação fica como próximo passo.
+
+    return reports;
   }
 
   findAll() {
-    return `This action returns all matches`;
+    return this.prisma.match.findMany({
+      include: { players: { include: { player: true } } },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} match`;
-  }
+  async getMatchReport(id: string) {
+    const match = await this.prisma.match.findUnique({
+      where: { id },
+      include: {
+        players: {
+          include: { player: true },
+          orderBy: { kills: 'desc' },
+        },
+      },
+    });
 
-  update(id: number, updateMatchDto: UpdateMatchDto) {
-    return `This action updates a #${id} match`;
-  }
+    if (!match) {
+      throw new NotFoundException(`Match with ID ${id} not found.`);
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} match`;
+    // Formatar o ranking
+    const ranking = match.players.map((p) => ({
+      player: p.player.name,
+      kills: p.kills,
+      deaths: p.deaths,
+    }));
+
+    return {
+      match_id: match.id,
+      total_kills: match.totalKills,
+      ranking,
+    };
   }
 }
