@@ -34,7 +34,7 @@ export interface UnparsableLine {
   raw: string;
 }
 
-const World = '<WORLD>';
+export const WorldRune = '<WORLD>';
 
 const MatchEventRegex = /(?:New )?[Mm]atch (\d+) has (started|ended)$/;
 const KillRegex = /(.*?) killed (.*?) using (.*)/;
@@ -100,7 +100,7 @@ export class ParserService {
       return LogLineType.MATCH_EVENT;
     }
     // Verificamos por `<WORLD>` primeiro, pois também inclui "killed"
-    if (message.includes('<WORLD> killed')) {
+    if (message.includes(WorldRune + ' killed')) {
       return LogLineType.WORLD_KILL;
     }
 
@@ -140,6 +140,6 @@ export class ParserService {
     if (!match) return;
 
     const [, victim, cause] = match;
-    return { killer: World, victim, cause };
+    return { killer: WorldRune, victim, cause };
   }
 }

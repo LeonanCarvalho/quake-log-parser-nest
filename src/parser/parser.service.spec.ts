@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ParserService, LogLineType } from './parser.service';
-import { time } from 'console';
 
 describe('ParserService', () => {
   let service: ParserService;

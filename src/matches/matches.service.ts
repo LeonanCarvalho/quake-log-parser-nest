@@ -81,6 +81,8 @@ export class MatchesService {
                   playerId: playerMap.get(playerName)!,
                   kills: report.kills[playerName] || 0,
                   deaths: report.deaths[playerName] || 0,
+                  maxStreak: report.streaks[playerName] || 0,
+                  favoriteWeapon: report.favoriteWeapons[playerName] || null,
                 })),
               },
             },

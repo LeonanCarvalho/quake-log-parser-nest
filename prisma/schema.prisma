@@ -30,8 +30,10 @@ model PlayerMatchStats {
   match   Match    @relation(fields: [matchId], references: [id])
   playerId String
   player   Player   @relation(fields: [playerId], references: [id])
-  kills   Int
-  deaths  Int
+  kills    Int
+  deaths   Int
+  maxStreak Int   @default(0) // Adicionar
+  favoriteWeapon String? // Adicionar (opcional, pois um jogador pode não matar ninguém)
 
   @@unique([matchId, playerId])
 }
