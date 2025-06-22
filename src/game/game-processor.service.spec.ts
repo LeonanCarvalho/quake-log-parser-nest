@@ -1,5 +1,5 @@
 import { GameProcessorService } from './game-processor.service';
-import { KillPayload, LogLineType, NewMatchPayload, ParsedLine } from '../parser/parser.service';
+import { KillPayload, LogLineType, MatchEventPayload, ParsedLine } from '../parser/parser.service';
 
 describe('GameProcessorService', () => {
   let service: GameProcessorService;
@@ -12,7 +12,7 @@ describe('GameProcessorService', () => {
     const lines: ParsedLine[] = [
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'started' } as NewMatchPayload,
+        payload: { matchId: '1', event: 'started' } as MatchEventPayload,
       },
       {
         type: LogLineType.KILL,
@@ -31,7 +31,7 @@ describe('GameProcessorService', () => {
       },
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'ended' } as NewMatchPayload,
+        payload: { matchId: '1', event: 'ended' } as MatchEventPayload,
       },
     ];
 
@@ -58,7 +58,7 @@ describe('GameProcessorService', () => {
       // Match 1
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'started' } as NewMatchPayload,
+        payload: { matchId: '1', event: 'started' } as MatchEventPayload,
       },
       {
         type: LogLineType.KILL,
@@ -67,7 +67,7 @@ describe('GameProcessorService', () => {
       // Match 2
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '2', event: 'started' } as NewMatchPayload,
+        payload: { matchId: '2', event: 'started' } as MatchEventPayload,
       },
       {
         type: LogLineType.KILL,
@@ -76,12 +76,12 @@ describe('GameProcessorService', () => {
       // Match 1 ends
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'ended' } as NewMatchPayload,
+        payload: { matchId: '1', event: 'ended' } as MatchEventPayload,
       },
       // Match 2 ends
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '2', event: 'ended' } as NewMatchPayload,
+        payload: { matchId: '2', event: 'ended' } as MatchEventPayload,
       },
     ];
 

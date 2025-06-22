@@ -10,10 +10,10 @@ export enum LogLineType {
 export interface ParsedLine {
   time?: string;
   type: LogLineType | LogLineType.UNKNOWN;
-  payload?: NewMatchPayload | KillPayload | WorldKillPayload | UnparsableLine | undefined;
+  payload?: MatchEventPayload | KillPayload | WorldKillPayload | UnparsableLine | undefined;
 }
 
-export interface NewMatchPayload {
+export interface MatchEventPayload {
   matchId: string;
   event: string;
 }
@@ -82,7 +82,7 @@ export class ParserService {
   private getPayload(
     lineType: LogLineType,
     message: string,
-  ): NewMatchPayload | KillPayload | WorldKillPayload | undefined {
+  ): MatchEventPayload | KillPayload | WorldKillPayload | undefined {
     switch (lineType) {
       case LogLineType.MATCH_EVENT:
         return this.parseMatchEvent(message);
@@ -115,7 +115,7 @@ export class ParserService {
     return LogLineType.UNKNOWN;
   }
 
-  private parseMatchEvent(message: string): NewMatchPayload | undefined {
+  private parseMatchEvent(message: string): MatchEventPayload | undefined {
     const match = message.match(MatchEventRegex);
     if (!match) return;
 

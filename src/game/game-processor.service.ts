@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   KillPayload,
   LogLineType,
-  NewMatchPayload,
+  MatchEventPayload,
   ParsedLine,
   WorldKillPayload,
 } from '../parser/parser.service';
@@ -12,6 +12,8 @@ interface MatchState {
   players: Set<string>;
   kills: { [player: string]: number };
   deaths: { [player: string]: number };
+  startTime?: string;
+  endTime?: string;
 }
 
 @Injectable()
@@ -22,7 +24,7 @@ export class GameProcessorService {
   public processLine(parsedLine: ParsedLine): void {
     switch (parsedLine.type) {
       case LogLineType.MATCH_EVENT:
-        this.handleMatchEvent(parsedLine.payload as NewMatchPayload);
+        this.handleMatchEvent(parsedLine.payload as MatchEventPayload, parsedLine.time);
         break;
       case LogLineType.KILL:
         this.handleKill(parsedLine.payload as KillPayload);
@@ -42,18 +44,19 @@ export class GameProcessorService {
     this.matchReports = {};
   }
 
-  private handleMatchEvent(payload: NewMatchPayload): void {
+  private handleMatchEvent(payload: MatchEventPayload, time?: string): void {
     if (payload.event === 'started') {
       this.activeMatches.set(payload.matchId, {
         total_kills: 0,
         players: new Set<string>(),
         kills: {},
         deaths: {},
+        startTime: time,
       });
     } else if (payload.event === 'ended') {
       const matchState = this.activeMatches.get(payload.matchId);
       if (matchState) {
-        // Finalize and store the report
+        matchState.endTime = time;
         this.matchReports[payload.matchId] = {
           ...matchState,
           players: Array.from(matchState.players),
