@@ -1,13 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { RankingService } from './ranking/ranking.service';
-import { GlobalRankingPlayerDto } from './ranking/dto/global-ranking-response.dto';
+import { RankingService } from './ranking.service';
 
 @Controller('ranking')
 export class RankingController {
   constructor(private readonly rankingService: RankingService) {}
 
   @Get('global')
-  async getGlobalRanking(): Promise<GlobalRankingPlayerDto[]> {
+  getGlobalRanking() {
     return this.rankingService.getGlobalRanking();
   }
 }
