@@ -18,21 +18,30 @@ export class MatchesService {
   async processLogFile(logBuffer: Buffer) {
     this.gameProcessorService.clear();
 
-    const stream = Readable.from(logBuffer.toString());
+    const logContent = logBuffer.toString('utf-8');
+    const sanitizedLogContent = logContent.replace(
+      /(?<=\S)(?=\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/g,
+      '\n',
+    );
+
+    const stream = Readable.from(sanitizedLogContent);
     const rl = readline.createInterface({
       input: stream,
       crlfDelay: Infinity,
     });
 
     for await (const line of rl) {
+      if (line.trim() === '') continue;
+
       const parsedLine = this.parserService.parseLine(line);
       this.gameProcessorService.processLine(parsedLine);
     }
 
+    this.gameProcessorService.completeProcessing();
+
     const reports = this.gameProcessorService.getReports();
     this.logger.log(`Generated ${Object.keys(reports).length} match reports from log file.`);
 
-    // Persistir os relatórios no banco de dados
     return this.saveReports(reports);
   }
 
@@ -44,19 +53,16 @@ export class MatchesService {
 
       try {
         const result = await this.prisma.$transaction(async (tx) => {
-          const existingMatch = await tx.match.findUnique({ where: { id: matchId } });
-          if (existingMatch) {
+          if (await tx.match.findUnique({ where: { id: matchId } })) {
             this.logger.warn(`Match ${matchId} already exists. Skipping.`);
             return null;
           }
 
           const playerNamesInMatch = report.players as string[];
-
           const existingPlayers = await tx.player.findMany({
             where: { name: { in: playerNamesInMatch } },
           });
           const existingPlayerNames = new Set(existingPlayers.map((p) => p.name));
-
           const newPlayersData = playerNamesInMatch
             .filter((name) => !existingPlayerNames.has(name))
             .map((name) => ({ name }));
@@ -70,12 +76,16 @@ export class MatchesService {
           });
           const playerMap = new Map(allPlayersInMatch.map((p) => [p.name, p.id]));
 
+          // Passo 2: Usar o parser de data customizado
+          const startTime = this.parseLogDate(report.startTime);
+          const endTime = this.parseLogDate(report.endTime);
+
           await tx.match.create({
             data: {
               id: matchId,
               totalKills: report.total_kills,
-              startTime: report.startTime ? new Date(report.startTime) : new Date(),
-              endTime: report.endTime ? new Date(report.endTime) : new Date(),
+              startTime: startTime || new Date(),
+              endTime: endTime || new Date(),
               players: {
                 create: playerNamesInMatch.map((playerName) => ({
                   playerId: playerMap.get(playerName)!,
@@ -87,7 +97,6 @@ export class MatchesService {
               },
             },
           });
-
           return matchId;
         });
 
@@ -139,5 +148,13 @@ export class MatchesService {
       total_kills: match.totalKills,
       ranking,
     };
+  }
+
+  private parseLogDate(dateString: string): Date | null {
+    if (!dateString) return null;
+    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+    if (!parts) return null;
+    // Formato para o construtor Date: YYYY, MM-1, DD, HH, MM, SS
+    return new Date(+parts[3], +parts[2] - 1, +parts[1], +parts[4], +parts[5], +parts[6]);
   }
 }

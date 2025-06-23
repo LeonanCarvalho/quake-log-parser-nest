@@ -152,4 +152,8 @@ export class GameProcessorService {
     state.kills[victim]--; // Victim loses a frag
     state.streaks[victim].current = 0; // Reset streak for victim
   }
+
+  public completeProcessing(): void {
+    this.finalizeCurrentMatch();
+  }
 }
