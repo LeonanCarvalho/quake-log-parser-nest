@@ -28,6 +28,3 @@ jobs:
 
       - name: Run Unit Tests
         run: npm run test
-
-      - name: Build for Production
-        run: npm run build

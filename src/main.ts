@@ -14,6 +14,7 @@ async function bootstrap() {
     }),
   );
 
+  // Unsafe for production, but as this is a demo, we will allow all origins
   const config = new DocumentBuilder()
     .setTitle('Quake Log Parser API')
     .setDescription('API para processar logs de partidas do Quake e exibir rankings.')
@@ -23,7 +24,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('api-docs', app, document, {
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.0/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.0/swagger-ui-bundle.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.0/swagger-ui-standalone-preset.js',
+    ],
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
