@@ -126,6 +126,10 @@ describe('GameProcessorService', () => {
 
     expect(report.deaths['Player1']).toBe(1);
   });
+
+  it.skip('should handle friendly fire by decrementing killer score', () => {
+    // This test is skipped because the logic for friendly fire is not implemented yet.
+  });
 });
 
 describe('GameProcessorService - Bonus Features', () => {

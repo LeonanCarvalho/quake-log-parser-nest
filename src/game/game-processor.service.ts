@@ -156,7 +156,6 @@ export class GameProcessorService {
     state.deaths[victim]++;
     state.streaks[victim].current = 0;
 
-    // Apenas processa o frag se o assassino for válido e estiver na partida.
     if (killer !== WorldRune && state.players.has(killer)) {
       state.kills[killer]++;
 
@@ -198,7 +197,6 @@ export class GameProcessorService {
     const winner = playersRanked[0];
 
     for (const player of state.players) {
-      // 1. Award: PERFECT_MATCH
       if (
         player === winner &&
         (state.deaths[player] || 0) === 0 &&
@@ -207,7 +205,6 @@ export class GameProcessorService {
         awards[player] = [...(awards[player] || []), 'PERFECT_MATCH'];
       }
 
-      // 2. Award: KILLING_SPREE
       const playerKills = state.killLog.filter((k) => k.killer === player);
       if (playerKills.length >= 5) {
         for (let i = 0; i <= playerKills.length - 5; i++) {
@@ -215,7 +212,7 @@ export class GameProcessorService {
           const fifthKillTime = playerKills[i + 4].time.getTime();
           if ((fifthKillTime - firstKillTime) / 1000 <= 60) {
             awards[player] = [...(awards[player] || []), 'KILLING_SPREE'];
-            break; // Garante que o award seja dado apenas uma vez por partida
+            break;
           }
         }
       }

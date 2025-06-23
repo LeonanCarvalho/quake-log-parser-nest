@@ -108,7 +108,6 @@ export class ParserService {
       return LogLineType.KILL;
     }
 
-    // Se não for nenhum dos tipos conhecidos, retornamos UNKNOWN
     return LogLineType.UNKNOWN;
   }
 

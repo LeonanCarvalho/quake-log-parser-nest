@@ -12,7 +12,6 @@ const mockPlayers = [
   { id: 'player2', name: 'Manoel' },
 ];
 
-// Mock completo do PrismaService
 const mockPrismaService = {
   playerMatchStats: {
     groupBy: jest.fn().mockResolvedValue(mockPlayerStats),

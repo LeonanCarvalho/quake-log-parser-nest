@@ -76,7 +76,6 @@ export class MatchesService {
           });
           const playerMap = new Map(allPlayersInMatch.map((p) => [p.name, p.id]));
 
-          // Passo 2: Usar o parser de data customizado
           const startTime = this.parseLogDate(report.startTime);
           const endTime = this.parseLogDate(report.endTime);
 
@@ -136,7 +135,6 @@ export class MatchesService {
       throw new NotFoundException(`Match with ID ${id} not found.`);
     }
 
-    // Formatar o ranking
     const ranking = match.players.map((p) => ({
       player: p.player.name,
       kills: p.kills,
