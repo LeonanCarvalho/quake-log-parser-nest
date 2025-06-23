@@ -1,16 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersController } from './players.controller';
 import { PlayersService } from './players.service';
+import { Player } from '@prisma/client';
 
 describe('PlayersController', () => {
   let controller: PlayersController;
 
   const mockPlayersService = {
-    create: jest.fn((dto) => ({ id: '1', ...dto })),
-    findAll: jest.fn(() => []),
-    findOne: jest.fn((id) => ({ id, name: 'Test Player' })),
-    update: jest.fn((id, dto) => ({ id, ...dto })),
-    remove: jest.fn((id) => ({ message: `Player with ID "${id}" successfully removed.` })),
+    create: jest.fn((dto): Promise<Player> => Promise.resolve({ id: '1', name: dto.name })),
+    findAll: jest.fn((): Promise<Player[]> => Promise.resolve([])),
+    findOne: jest.fn((id: string): Promise<Player> => Promise.resolve({ id, name: 'Test Player' })),
+    update: jest.fn(),
+    remove: jest.fn(),
   };
 
   beforeEach(async () => {

@@ -1,11 +1,5 @@
 import { GameProcessorService, MatchReport } from './game-processor.service';
-import {
-  KillPayload,
-  LogLineType,
-  MatchEventPayload,
-  ParsedLine,
-  WorldKillPayload,
-} from '../parser/parser.service';
+import { LogLineType, ParsedLine, WorldRune } from '../parser/parser.service';
 
 describe('GameProcessorService', () => {
   let service: GameProcessorService;
@@ -18,23 +12,23 @@ describe('GameProcessorService', () => {
     const lines: ParsedLine[] = [
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'started' } as MatchEventPayload,
+        payload: { matchId: '1', event: 'started' },
       },
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player1', victim: 'Player2', weapon: 'M16' } as KillPayload,
+        payload: { killer: 'Player1', victim: 'Player2', weapon: 'M16' },
       },
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player1', victim: 'Player3', weapon: 'AK47' } as KillPayload,
+        payload: { killer: 'Player1', victim: 'Player3', weapon: 'AK47' },
       },
       {
         type: LogLineType.WORLD_KILL,
-        payload: { victim: 'Player1', cause: 'DROWN' } as WorldKillPayload,
+        payload: { killer: WorldRune, victim: 'Player1', cause: 'DROWN' },
       },
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'ended' } as MatchEventPayload,
+        payload: { matchId: '1', event: 'ended' },
       },
     ];
 
@@ -63,28 +57,28 @@ describe('GameProcessorService', () => {
       // Match 1
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'started' } as MatchEventPayload,
+        payload: { matchId: '1', event: 'started' },
       },
       {
         type: LogLineType.KILL,
-        payload: { killer: 'P1', victim: 'P2', weapon: 'M16' } as KillPayload,
+        payload: { killer: 'P1', victim: 'P2', weapon: 'M16' },
       },
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '1', event: 'ended' } as MatchEventPayload,
+        payload: { matchId: '1', event: 'ended' },
       },
       // Match 2
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '2', event: 'started' } as MatchEventPayload,
+        payload: { matchId: '2', event: 'started' },
       },
       {
         type: LogLineType.KILL,
-        payload: { killer: 'P3', victim: 'P4', weapon: 'AK47' } as KillPayload,
+        payload: { killer: 'P3', victim: 'P4', weapon: 'AK47' },
       },
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: '2', event: 'ended' } as MatchEventPayload,
+        payload: { matchId: '2', event: 'ended' },
       },
     ];
 
@@ -109,24 +103,24 @@ describe('GameProcessorService', () => {
     const lines: ParsedLine[] = [
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: 'limit_test', event: 'started' } as MatchEventPayload,
+        payload: { matchId: 'limit_test', event: 'started' },
       },
     ];
 
     for (let i = 1; i <= 20; i += 2) {
       lines.push({
         type: LogLineType.KILL,
-        payload: { killer: `Player${i}`, victim: `Player${i + 1}`, weapon: 'M16' } as KillPayload,
+        payload: { killer: `Player${i}`, victim: `Player${i + 1}`, weapon: 'M16' },
       });
     }
 
     lines.push({
       type: LogLineType.KILL,
-      payload: { killer: 'Player21', victim: 'Player1', weapon: 'M16' } as KillPayload,
+      payload: { killer: 'Player21', victim: 'Player1', weapon: 'M16' },
     });
     lines.push({
       type: LogLineType.MATCH_EVENT,
-      payload: { matchId: 'limit_test', event: 'ended' } as MatchEventPayload,
+      payload: { matchId: 'limit_test', event: 'ended' },
     });
 
     lines.forEach((line) => service.processLine(line));
@@ -157,35 +151,35 @@ describe('GameProcessorService - Bonus Features', () => {
     const lines: ParsedLine[] = [
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: 'bonus_match', event: 'started' } as MatchEventPayload,
+        payload: { matchId: 'bonus_match', event: 'started' },
       },
       // Player1 streak
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player1', victim: 'Player2', weapon: 'M16' } as KillPayload,
+        payload: { killer: 'Player1', victim: 'Player2', weapon: 'M16' },
       },
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player1', victim: 'Player3', weapon: 'M16' } as KillPayload,
+        payload: { killer: 'Player1', victim: 'Player3', weapon: 'M16' },
       },
       // Player1 morre, zerando o streak
       {
         type: LogLineType.WORLD_KILL,
-        payload: { victim: 'Player1', cause: 'DROWN' } as WorldKillPayload,
+        payload: { killer: WorldRune, victim: 'Player1', cause: 'DROWN' },
       },
       // Player1 nova streak (menor)
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player1', victim: 'Player2', weapon: 'AK47' } as KillPayload,
+        payload: { killer: 'Player1', victim: 'Player2', weapon: 'AK47' },
       },
       // Player2 mata com a shotgun
       {
         type: LogLineType.KILL,
-        payload: { killer: 'Player2', victim: 'Player3', weapon: 'Shotgun' } as KillPayload,
+        payload: { killer: 'Player2', victim: 'Player3', weapon: 'Shotgun' },
       },
       {
         type: LogLineType.MATCH_EVENT,
-        payload: { matchId: 'bonus_match', event: 'ended' } as MatchEventPayload,
+        payload: { matchId: 'bonus_match', event: 'ended' },
       },
     ];
 
@@ -309,7 +303,7 @@ describe('GameProcessorService - Awards Logic', () => {
       },
       {
         type: LogLineType.WORLD_KILL,
-        payload: { victim: 'Winner', cause: 'DROWN' } as WorldKillPayload,
+        payload: { killer: WorldRune, victim: 'Winner', cause: 'DROWN' },
         time: new Date(baseTime.getTime() + 3000).toISOString(),
       },
       {
