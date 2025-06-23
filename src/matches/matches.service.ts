@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { ParserService } from '../parser/parser.service';
 import { GameProcessorService } from '../game/game-processor.service';
-import { PrismaService } from '../prisma/prisma.service'; // Assumindo um PrismaService
+import { PrismaService } from '../prisma/prisma.service';
 import * as readline from 'readline';
 import { Readable } from 'stream';
 
