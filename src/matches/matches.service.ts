@@ -154,7 +154,6 @@ export class MatchesService {
     if (!dateString) return null;
     const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
     if (!parts) return null;
-    // Formato para o construtor Date: YYYY, MM-1, DD, HH, MM, SS
     return new Date(+parts[3], +parts[2] - 1, +parts[1], +parts[4], +parts[5], +parts[6]);
   }
 }

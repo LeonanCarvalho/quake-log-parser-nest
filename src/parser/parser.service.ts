@@ -99,15 +99,12 @@ export class ParserService {
     if (MatchEventRegex.test(message)) {
       return LogLineType.MATCH_EVENT;
     }
-    // Verificamos por `<WORLD>` primeiro, pois também inclui "killed"
+
     if (message.includes(WorldRune + ' killed')) {
       return LogLineType.WORLD_KILL;
     }
 
-    // "killed" é verificado no final, pois é mais genérico
-    // e pode ser parte de outras mensagens, como "killed by" ou
-    // até mesmo o nick de um personagemcomo "Skilled".
-    if (message.includes('killed')) {
+    if (KillRegex.test(message)) {
       return LogLineType.KILL;
     }
 
