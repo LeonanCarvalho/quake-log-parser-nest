@@ -43,7 +43,7 @@ const WorldKillRegex = /<WORLD> killed (.*?) by (.*)/;
 @Injectable()
 export class ParserService {
   public parseLine(rawLine: string): ParsedLine {
-    let parsed: ParsedLine = {
+    const parsed: ParsedLine = {
       type: LogLineType.UNKNOWN,
     };
 

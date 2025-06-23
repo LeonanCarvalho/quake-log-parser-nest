@@ -6,8 +6,15 @@ import { PrismaService } from '../prisma/prisma.service';
 
 describe('MatchesService', () => {
   let service: MatchesService;
-  let gameProcessorService: GameProcessorService;
-  let prismaService: PrismaService;
+  const mockPrismaService = {
+    $transaction: jest.fn().mockImplementation((callback) => callback(mockPrismaService)),
+    player: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
+      createMany: jest.fn(),
+    },
+  };
 
   beforeEach(async () => {
     const mockParserService = {
@@ -17,14 +24,6 @@ describe('MatchesService', () => {
       clear: jest.fn(),
       processLine: jest.fn(),
       getReports: jest.fn().mockReturnValue({}),
-    };
-    const mockPrismaService = {
-      $transaction: jest.fn().mockImplementation(async (callback) => {
-        return callback({
-          match: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn() },
-          player: { findMany: jest.fn().mockResolvedValue([]), createMany: jest.fn() },
-        });
-      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -37,8 +36,6 @@ describe('MatchesService', () => {
     }).compile();
 
     service = module.get<MatchesService>(MatchesService);
-    gameProcessorService = module.get<GameProcessorService>(GameProcessorService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {

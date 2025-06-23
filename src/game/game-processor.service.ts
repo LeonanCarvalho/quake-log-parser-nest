@@ -25,14 +25,29 @@ interface MatchState {
   killLog: KillEvent[];
 }
 
+export interface MatchReport {
+  total_kills: number;
+  players: string[];
+  kills: { [player: string]: number };
+  deaths: { [player: string]: number };
+  startTime?: string;
+  endTime?: string;
+  streaks: { [player: string]: number };
+  favoriteWeapons: { [player: string]: string | undefined };
+  awards: { [player: string]: string[] };
+}
+
 const PlayerLimit = 20;
 
-Injectable({ scope: Scope.REQUEST });
+@Injectable({ scope: Scope.REQUEST })
 export class GameProcessorService {
   private readonly logger = new Logger(GameProcessorService.name);
-
   private currentMatch: { id: string; state: MatchState } | null = null;
-  private matchReports: { [matchId: string]: any } = {};
+  private matchReports: { [matchId: string]: MatchReport } = {};
+
+  constructor() {
+    this.clear();
+  }
 
   public processLine(parsedLine: ParsedLine): void {
     if (parsedLine.type === LogLineType.MATCH_EVENT) {
@@ -55,7 +70,7 @@ export class GameProcessorService {
     }
   }
 
-  public getReports() {
+  public getReports(): { [matchId: string]: MatchReport } {
     return this.matchReports;
   }
 

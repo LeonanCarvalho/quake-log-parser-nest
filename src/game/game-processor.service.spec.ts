@@ -1,5 +1,11 @@
-import { GameProcessorService } from './game-processor.service';
-import { KillPayload, LogLineType, MatchEventPayload, ParsedLine } from '../parser/parser.service';
+import { GameProcessorService, MatchReport } from './game-processor.service';
+import {
+  KillPayload,
+  LogLineType,
+  MatchEventPayload,
+  ParsedLine,
+  WorldKillPayload,
+} from '../parser/parser.service';
 
 describe('GameProcessorService', () => {
   let service: GameProcessorService;
@@ -22,7 +28,10 @@ describe('GameProcessorService', () => {
         type: LogLineType.KILL,
         payload: { killer: 'Player1', victim: 'Player3', weapon: 'AK47' } as KillPayload,
       },
-      { type: LogLineType.WORLD_KILL, payload: { victim: 'Player1', cause: 'DROWN' } as any },
+      {
+        type: LogLineType.WORLD_KILL,
+        payload: { victim: 'Player1', cause: 'DROWN' } as WorldKillPayload,
+      },
       {
         type: LogLineType.MATCH_EVENT,
         payload: { matchId: '1', event: 'ended' } as MatchEventPayload,
@@ -30,7 +39,7 @@ describe('GameProcessorService', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report = service.getReports()['1'];
+    const report: MatchReport = service.getReports()['1'];
 
     expect(report.total_kills).toBe(3);
     expect(report.players).toEqual(['Player1', 'Player2', 'Player3']);
@@ -82,13 +91,18 @@ describe('GameProcessorService', () => {
     lines.forEach((line) => service.processLine(line));
     const reports = service.getReports();
 
-    expect(reports['1']).toBeDefined();
-    expect(reports['1'].total_kills).toBe(1);
-    expect(reports['1'].kills).toEqual({ P1: 1, P2: 0 });
+    expect(Object.keys(reports).length).toBe(2);
 
-    expect(reports['2']).toBeDefined();
-    expect(reports['2'].total_kills).toBe(1);
-    expect(reports['2'].kills).toEqual({ P3: 1, P4: 0 });
+    const report1: MatchReport = reports['1'];
+
+    expect(report1).toBeDefined();
+    expect(report1.total_kills).toBe(1);
+    expect(report1.kills).toEqual({ P1: 1, P2: 0 });
+
+    const report2: MatchReport = reports['2'];
+    expect(report2).toBeDefined();
+    expect(report2.total_kills).toBe(1);
+    expect(report2.kills).toEqual({ P3: 1, P4: 0 });
   });
 
   it('should ignore players beyond the 20 player limit', () => {
@@ -117,7 +131,7 @@ describe('GameProcessorService', () => {
 
     lines.forEach((line) => service.processLine(line));
 
-    const report = service.getReports()['limit_test'];
+    const report: MatchReport = service.getReports()['limit_test'];
 
     expect(report.players.length).toBe(20);
     expect(report.players).not.toContain('Player21');
@@ -155,7 +169,10 @@ describe('GameProcessorService - Bonus Features', () => {
         payload: { killer: 'Player1', victim: 'Player3', weapon: 'M16' } as KillPayload,
       },
       // Player1 morre, zerando o streak
-      { type: LogLineType.WORLD_KILL, payload: { victim: 'Player1', cause: 'DROWN' } as any },
+      {
+        type: LogLineType.WORLD_KILL,
+        payload: { victim: 'Player1', cause: 'DROWN' } as WorldKillPayload,
+      },
       // Player1 nova streak (menor)
       {
         type: LogLineType.KILL,
@@ -173,7 +190,7 @@ describe('GameProcessorService - Bonus Features', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report = service.getReports()['bonus_match'];
+    const report: MatchReport = service.getReports()['bonus_match'];
 
     // Validação do relatório final
     expect(report.streaks['Player1']).toBe(2); // O maior streak foi de 2, antes de morrer.
@@ -217,7 +234,7 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report = service.getReports()['perfect_match_test'];
+    const report: MatchReport = service.getReports()['perfect_match_test'];
 
     // Winner tem 2 kills, Loser tem 0. Winner tem 0 mortes.
     expect(report.awards['Winner']).toBeDefined();
@@ -266,7 +283,7 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report = service.getReports()['spree_test'];
+    const report: MatchReport = service.getReports()['spree_test'];
 
     expect(report.awards['SpreePlayer']).toBeDefined();
     expect(report.awards['SpreePlayer']).toContain('KILLING_SPREE');
@@ -292,7 +309,7 @@ describe('GameProcessorService - Awards Logic', () => {
       },
       {
         type: LogLineType.WORLD_KILL,
-        payload: { victim: 'Winner', cause: 'DROWN' } as any,
+        payload: { victim: 'Winner', cause: 'DROWN' } as WorldKillPayload,
         time: new Date(baseTime.getTime() + 3000).toISOString(),
       },
       {
@@ -303,7 +320,7 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report = service.getReports()['no_perfect_match'];
+    const report: MatchReport = service.getReports()['no_perfect_match'];
 
     // Winner ainda tem mais kills, mas morreu.
     expect(report.awards['Winner']).toBeUndefined();

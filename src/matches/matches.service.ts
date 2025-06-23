@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { ParserService } from '../parser/parser.service';
-import { GameProcessorService } from '../game/game-processor.service';
+import { GameProcessorService, MatchReport } from '../game/game-processor.service';
 import { PrismaService } from '../prisma/prisma.service';
 import * as readline from 'readline';
 import { Readable } from 'stream';
@@ -45,7 +45,7 @@ export class MatchesService {
     return this.saveReports(reports);
   }
 
-  private async saveReports(reports: { [matchId: string]: any }) {
+  private async saveReports(reports: { [matchId: string]: MatchReport }) {
     const savedMatchIds: string[] = [];
 
     for (const matchId in reports) {
@@ -58,7 +58,7 @@ export class MatchesService {
             return null;
           }
 
-          const playerNamesInMatch = report.players as string[];
+          const playerNamesInMatch = report.players;
           const existingPlayers = await tx.player.findMany({
             where: { name: { in: playerNamesInMatch } },
           });
@@ -148,7 +148,7 @@ export class MatchesService {
     };
   }
 
-  private parseLogDate(dateString: string): Date | null {
+  private parseLogDate(dateString?: string): Date | null {
     if (!dateString) return null;
     const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
     if (!parts) return null;

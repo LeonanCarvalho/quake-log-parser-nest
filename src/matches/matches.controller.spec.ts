@@ -5,7 +5,6 @@ import { Readable } from 'stream';
 
 describe('MatchesController', () => {
   let controller: MatchesController;
-  let service: MatchesService;
 
   const mockMatchesService = {
     processLogFile: jest.fn().mockResolvedValue({ message: 'Processed' }),
@@ -25,7 +24,6 @@ describe('MatchesController', () => {
     }).compile();
 
     controller = module.get<MatchesController>(MatchesController);
-    service = module.get<MatchesService>(MatchesService);
   });
 
   it('should be defined', () => {
@@ -47,6 +45,6 @@ describe('MatchesController', () => {
     };
 
     await controller.uploadLogFile(file);
-    expect(service.processLogFile).toHaveBeenCalledWith(file.buffer);
+    expect(mockMatchesService.processLogFile).toHaveBeenCalledWith(file.buffer);
   });
 });

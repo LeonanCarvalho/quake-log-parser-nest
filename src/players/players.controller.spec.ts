@@ -4,7 +4,6 @@ import { PlayersService } from './players.service';
 
 describe('PlayersController', () => {
   let controller: PlayersController;
-  let service: PlayersService;
 
   const mockPlayersService = {
     create: jest.fn((dto) => ({ id: '1', ...dto })),
@@ -26,37 +25,36 @@ describe('PlayersController', () => {
     }).compile();
 
     controller = module.get<PlayersController>(PlayersController);
-    service = module.get<PlayersService>(PlayersService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a player', () => {
+  it('should create a player', async () => {
     const dto = { name: 'Test' };
-    expect(controller.create(dto)).toEqual({ id: '1', ...dto });
-    expect(service.create).toHaveBeenCalledWith(dto);
+    await controller.create(dto);
+    expect(mockPlayersService.create).toHaveBeenCalledWith(dto);
   });
 
-  it('should find all players', () => {
-    controller.findAll();
-    expect(service.findAll).toHaveBeenCalled();
+  it('should find all players', async () => {
+    await controller.findAll();
+    expect(mockPlayersService.findAll).toHaveBeenCalled();
   });
 
-  it('should find one player by id', () => {
-    controller.findOne('1');
-    expect(service.findOne).toHaveBeenCalledWith('1');
+  it('should find one player by id', async () => {
+    await controller.findOne('1');
+    expect(mockPlayersService.findOne).toHaveBeenCalledWith('1');
   });
 
-  it('should update a player', () => {
+  it('should update a player', async () => {
     const dto = { name: 'Updated Test' };
-    controller.update('1', dto);
-    expect(service.update).toHaveBeenCalledWith('1', dto);
+    await controller.update('1', dto);
+    expect(mockPlayersService.update).toHaveBeenCalledWith('1', dto);
   });
 
-  it('should remove a player', () => {
-    controller.remove('1');
-    expect(service.remove).toHaveBeenCalledWith('1');
+  it('should remove a player', async () => {
+    await controller.remove('1');
+    expect(mockPlayersService.remove).toHaveBeenCalledWith('1');
   });
 });

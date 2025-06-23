@@ -89,7 +89,7 @@ describe('ParserService', () => {
     const result = service.parseLine(logLine);
 
     expect(result).toEqual({
-      time: expect.any(String),
+      time: '23/04/2019 15:36:33',
       type: LogLineType.WORLD_KILL,
       payload: { raw: logLine },
     });
