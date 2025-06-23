@@ -45,7 +45,7 @@ export class MatchesService {
     return this.saveReports(reports);
   }
 
-  private async saveReports(reports: { [matchId: string]: MatchReport }) {
+  private async saveReports(reports: Record<string, MatchReport>) {
     const savedMatchIds: string[] = [];
 
     for (const matchId in reports) {
@@ -150,7 +150,7 @@ export class MatchesService {
 
   private parseLogDate(dateString?: string): Date | null {
     if (!dateString) return null;
-    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+    const parts = /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/.exec(dateString);
     if (!parts) return null;
     return new Date(+parts[3], +parts[2] - 1, +parts[1], +parts[4], +parts[5], +parts[6]);
   }

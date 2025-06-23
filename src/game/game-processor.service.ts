@@ -16,25 +16,25 @@ interface KillEvent {
 interface MatchState {
   total_kills: number;
   players: Set<string>;
-  kills: { [player: string]: number };
-  deaths: { [player: string]: number };
+  kills: Record<string, number>;
+  deaths: Record<string, number>;
   startTime?: string;
   endTime?: string;
-  streaks: { [player: string]: { current: number; max: number } };
-  killsByWeapon: { [player: string]: { [weapon: string]: number } };
+  streaks: Record<string, { current: number; max: number }>;
+  killsByWeapon: Record<string, Record<string, number>>;
   killLog: KillEvent[];
 }
 
 export interface MatchReport {
   total_kills: number;
   players: string[];
-  kills: { [player: string]: number };
-  deaths: { [player: string]: number };
+  kills: Record<string, number>;
+  deaths: Record<string, number>;
   startTime?: string;
   endTime?: string;
-  streaks: { [player: string]: number };
-  favoriteWeapons: { [player: string]: string | undefined };
-  awards: { [player: string]: string[] };
+  streaks: Record<string, number>;
+  favoriteWeapons: Record<string, string | undefined>;
+  awards: Record<string, string[]>;
 }
 
 const PlayerLimit = 20;
@@ -43,7 +43,7 @@ const PlayerLimit = 20;
 export class GameProcessorService {
   private readonly logger = new Logger(GameProcessorService.name);
   private currentMatch: { id: string; state: MatchState } | null = null;
-  private matchReports: { [matchId: string]: MatchReport } = {};
+  private matchReports: Record<string, MatchReport> = {};
 
   constructor() {
     this.clear();
@@ -70,7 +70,7 @@ export class GameProcessorService {
     }
   }
 
-  public getReports(): { [matchId: string]: MatchReport } {
+  public getReports(): Record<string, MatchReport> {
     return this.matchReports;
   }
 
@@ -204,8 +204,8 @@ export class GameProcessorService {
     this.finalizeCurrentMatch();
   }
 
-  private calculateAwards(state: MatchState): { [player: string]: string[] } {
-    const awards: { [player: string]: string[] } = {};
+  private calculateAwards(state: MatchState): Record<string, string[]> {
+    const awards: Record<string, string[]> = {};
     const playersRanked = Array.from(state.players).sort(
       (a, b) => (state.kills[b] || 0) - (state.kills[a] || 0),
     );
@@ -237,7 +237,7 @@ export class GameProcessorService {
 
   private parseLogDate(dateString: string): Date | null {
     if (!dateString) return null;
-    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+    const parts = /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/.exec(dateString);
     if (!parts) return null;
     return new Date(+parts[3], +parts[2] - 1, +parts[1], +parts[4], +parts[5], +parts[6]);
   }

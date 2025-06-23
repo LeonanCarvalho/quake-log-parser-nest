@@ -70,12 +70,12 @@ export class ParserService {
   }
 
   private getTime(line: string): string | undefined {
-    const timeMatch = line.match(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}/);
+    const timeMatch = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}/.exec(line);
     return timeMatch ? timeMatch[0] : undefined;
   }
 
   private getLineMessage(line: string): string {
-    const timeMatch = line.match(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2} - (.*)/);
+    const timeMatch = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2} - (.*)/.exec(line);
     return timeMatch ? timeMatch[1].trim() : line;
   }
 
@@ -112,7 +112,7 @@ export class ParserService {
   }
 
   private parseMatchEvent(message: string): MatchEventPayload | undefined {
-    const match = message.match(MatchEventRegex);
+    const match = MatchEventRegex.exec(message);
     if (!match) return;
 
     const matchId = match[1];
@@ -122,7 +122,7 @@ export class ParserService {
   }
 
   private parseKill(message: string): KillPayload | undefined {
-    const match = message.match(KillRegex);
+    const match = KillRegex.exec(message);
 
     if (!match) return;
 
@@ -131,7 +131,7 @@ export class ParserService {
   }
 
   private parseWorldKill(message: string): WorldKillPayload | undefined {
-    const match = message.match(WorldKillRegex);
+    const match = WorldKillRegex.exec(message);
 
     if (!match) return;
 

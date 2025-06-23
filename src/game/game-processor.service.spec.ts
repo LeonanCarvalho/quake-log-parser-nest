@@ -125,14 +125,14 @@ describe('GameProcessorService', () => {
 
     lines.forEach((line) => service.processLine(line));
 
-    const report: MatchReport = service.getReports()['limit_test'];
+    const report: MatchReport = service.getReports().limit_test;
 
     expect(report.players.length).toBe(20);
     expect(report.players).not.toContain('Player21');
 
-    expect(report.kills['Player21']).toBeUndefined();
+    expect(report.kills.Player21).toBeUndefined();
 
-    expect(report.deaths['Player1']).toBe(1);
+    expect(report.deaths.Player1).toBe(1);
   });
 
   it.skip('should handle friendly fire by decrementing killer score', () => {
@@ -184,14 +184,14 @@ describe('GameProcessorService - Bonus Features', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report: MatchReport = service.getReports()['bonus_match'];
+    const report: MatchReport = service.getReports().bonus_match;
 
     // Validação do relatório final
-    expect(report.streaks['Player1']).toBe(2); // O maior streak foi de 2, antes de morrer.
-    expect(report.streaks['Player2']).toBe(1);
-    expect(report.favoriteWeapons['Player1']).toBe('M16'); // Matou 2x com M16 e 1x com AK47
-    expect(report.favoriteWeapons['Player2']).toBe('Shotgun');
-    expect(report.favoriteWeapons['Player3']).toBeUndefined(); // Não matou ninguém
+    expect(report.streaks.Player1).toBe(2); // O maior streak foi de 2, antes de morrer.
+    expect(report.streaks.Player2).toBe(1);
+    expect(report.favoriteWeapons.Player1).toBe('M16'); // Matou 2x com M16 e 1x com AK47
+    expect(report.favoriteWeapons.Player2).toBe('Shotgun');
+    expect(report.favoriteWeapons.Player3).toBeUndefined(); // Não matou ninguém
   });
 });
 
@@ -228,12 +228,12 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report: MatchReport = service.getReports()['perfect_match_test'];
+    const report: MatchReport = service.getReports().perfect_match_test;
 
     // Winner tem 2 kills, Loser tem 0. Winner tem 0 mortes.
-    expect(report.awards['Winner']).toBeDefined();
-    expect(report.awards['Winner']).toContain('PERFECT_MATCH');
-    expect(report.awards['Loser']).toBeUndefined();
+    expect(report.awards.Winner).toBeDefined();
+    expect(report.awards.Winner).toContain('PERFECT_MATCH');
+    expect(report.awards.Loser).toBeUndefined();
   });
 
   it('should grant KILLING_SPREE for 5 kills in under 60 seconds', () => {
@@ -277,10 +277,10 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report: MatchReport = service.getReports()['spree_test'];
+    const report: MatchReport = service.getReports().spree_test;
 
-    expect(report.awards['SpreePlayer']).toBeDefined();
-    expect(report.awards['SpreePlayer']).toContain('KILLING_SPREE');
+    expect(report.awards.SpreePlayer).toBeDefined();
+    expect(report.awards.SpreePlayer).toContain('KILLING_SPREE');
   });
 
   it('should NOT grant PERFECT_MATCH to a winner who died', () => {
@@ -314,9 +314,9 @@ describe('GameProcessorService - Awards Logic', () => {
     ];
 
     lines.forEach((line) => service.processLine(line));
-    const report: MatchReport = service.getReports()['no_perfect_match'];
+    const report: MatchReport = service.getReports().no_perfect_match;
 
     // Winner ainda tem mais kills, mas morreu.
-    expect(report.awards['Winner']).toBeUndefined();
+    expect(report.awards.Winner).toBeUndefined();
   });
 });

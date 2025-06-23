@@ -7,22 +7,17 @@ describe('PlayersController', () => {
   let controller: PlayersController;
 
   const mockPlayersService = {
-    create: jest.fn((dto): Promise<Player> => Promise.resolve({ id: '1', name: dto.name })),
+    create: jest.fn((dto): Promise<Player> => Promise.resolve({ id: '1', ...dto })),
     findAll: jest.fn((): Promise<Player[]> => Promise.resolve([])),
     findOne: jest.fn((id: string): Promise<Player> => Promise.resolve({ id, name: 'Test Player' })),
-    update: jest.fn(),
-    remove: jest.fn(),
+    update: jest.fn().mockResolvedValue({}),
+    remove: jest.fn().mockResolvedValue({}),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PlayersController],
-      providers: [
-        {
-          provide: PlayersService,
-          useValue: mockPlayersService,
-        },
-      ],
+      providers: [{ provide: PlayersService, useValue: mockPlayersService }],
     }).compile();
 
     controller = module.get<PlayersController>(PlayersController);
@@ -49,7 +44,7 @@ describe('PlayersController', () => {
   });
 
   it('should update a player', async () => {
-    const dto = { name: 'Updated Test' };
+    const dto = { name: 'Updated' };
     await controller.update('1', dto);
     expect(mockPlayersService.update).toHaveBeenCalledWith('1', dto);
   });

@@ -19,7 +19,6 @@ const mockPrismaService = {
 
 describe('PlayersService', () => {
   let service: PlayersService;
-  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,11 +26,10 @@ describe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
-    prisma = module.get<PrismaService>(PrismaService);
+    service = module.get<PlayersService>(PlayersService);
 
     jest.clearAllMocks();
   });
-
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -42,7 +40,7 @@ describe('PlayersService', () => {
 
       const createDto = { name: 'Zeh' };
       await expect(service.create(createDto)).resolves.toEqual(mockPlayer);
-      expect(prisma.player.create).toHaveBeenCalledWith({ data: createDto });
+      expect(mockPrismaService.player.create).toHaveBeenCalledWith({ data: createDto });
     });
 
     it('should throw a ConflictException if player name already exists', async () => {
@@ -68,7 +66,7 @@ describe('PlayersService', () => {
     it('should return a single player', async () => {
       mockPrismaService.player.findUnique.mockResolvedValue(mockPlayer);
       await expect(service.findOne('1')).resolves.toEqual(mockPlayer);
-      expect(prisma.player.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(mockPrismaService.player.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
     });
 
     it('should throw a NotFoundException if player does not exist', async () => {
@@ -88,7 +86,7 @@ describe('PlayersService', () => {
         ...mockPlayer,
         ...updateDto,
       });
-      expect(prisma.player.update).toHaveBeenCalledWith({
+      expect(mockPrismaService.player.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: updateDto,
       });
@@ -103,7 +101,7 @@ describe('PlayersService', () => {
       await expect(service.remove('1')).resolves.toEqual({
         message: 'Player with ID "1" successfully removed.',
       });
-      expect(prisma.player.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(mockPrismaService.player.delete).toHaveBeenCalledWith({ where: { id: '1' } });
     });
   });
 });
